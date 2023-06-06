@@ -15,6 +15,14 @@ func Createuser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
-	helper.Signin(user)
-	json.NewEncoder(w).Encode(user)
+	if helper.Register(user) != "username already exists" {
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(user)
+	} else {
+		w.WriteHeader(http.StatusConflict)
+		response := make(map[string]string)
+		response["message"] = "username already exists"
+		jsonResponse, _ := json.Marshal(response)
+		w.Write(jsonResponse)
+	}
 }

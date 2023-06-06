@@ -15,12 +15,11 @@ func init() {
 	Init()
 }
 
-func Signin(user models.User) interface{} {
+func Register(user models.User) interface{} {
 	var result models.User
 
 	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}}).Decode(&result)
 
-	fmt.Println(err)
 	if err == mongo.ErrNoDocuments {
 		inserted, err := collection.InsertOne(context.Background(), user)
 

@@ -9,6 +9,6 @@ func Router() *mux.Router {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/user/signin", controller.Createuser).Methods("POST")
+	router.HandleFunc("/user/register", controller.Createuser).Methods("POST")
 	return router
 }
