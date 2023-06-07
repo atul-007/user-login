@@ -35,3 +35,19 @@ func Register(user models.User) interface{} {
 	}
 
 }
+func Login(user models.User) interface{} {
+
+	var result models.User
+
+	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}, primitive.E{Key: "password", Value: user.Password}}).Decode(&result)
+
+	if err == mongo.ErrNoDocuments {
+
+		fmt.Println("invalid username or passeword")
+		return "invalid username or password"
+	} else {
+		fmt.Println("logged-in")
+		return "logged-in"
+	}
+
+}

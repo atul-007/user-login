@@ -26,3 +26,27 @@ func Createuser(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonResponse)
 	}
 }
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Allow-Control-Allow-Method", "POST")
+
+	var user models.User
+
+	json.NewDecoder(r.Body).Decode(&user)
+
+	if helper.Login(user) != "logged-in" {
+		w.WriteHeader(http.StatusUnauthorized)
+		response := make(map[string]string)
+		response["message"] = "Invalid Username or password"
+		jsonResponse, _ := json.Marshal(response)
+		w.Write(jsonResponse)
+	} else {
+
+		response := make(map[string]string)
+		response["message"] = "Logged in sucessfully"
+		jsonResponse, _ := json.Marshal(response)
+		w.Write(jsonResponse)
+
+	}
+}
