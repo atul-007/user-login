@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {
@@ -17,6 +18,13 @@ func init() {
 
 func Register(user models.User) interface{} {
 	var result models.User
+
+	pass, errr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if errr != nil {
+		panic(errr)
+	}
+
+	user.Password = string(pass)
 
 	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}}).Decode(&result)
 
@@ -39,15 +47,22 @@ func Login(user models.User) interface{} {
 
 	var result models.User
 
-	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}, primitive.E{Key: "password", Value: user.Password}}).Decode(&result)
+	collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}}).Decode(&result)
+	errf := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
+	if errf == nil {
 
-	if err == mongo.ErrNoDocuments {
+		err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: user.UserName}, primitive.E{Key: "password", Value: result.Password}}).Decode(&result)
 
-		fmt.Println("invalid username or passeword")
-		return "invalid username or password"
+		if err == mongo.ErrNoDocuments {
+
+			fmt.Println("invalid username or passeword")
+			return "invalid username or password"
+		} else {
+			fmt.Println("logged-in")
+			return "logged-in"
+		}
 	} else {
-		fmt.Println("logged-in")
-		return "logged-in"
+		return bcrypt.ErrMismatchedHashAndPassword
 	}
 
 }
