@@ -68,22 +68,12 @@ func Login(user models.User) interface{} {
 }
 func GetUserData(userName string) interface{} {
 	var result models.User
-	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: userName}}).Decode(&result) //to get all the values in the cursor
+	err := collection.FindOne(context.TODO(), bson.D{primitive.E{Key: "username", Value: userName}}).Decode(&result)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+	result.Password = ""
 
-	//var data []primitive.M //similar to  bson.m but better in this case
-	//data = result
-	/*for cursor.Next(context.Background()) { //to get all the values in the cursor
-		var udata bson.M
-		err := cursor.Decode(&udata)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data = append(data, udata)
-	}*/
-	//defer cursor.Close(context.Background())
 	return result
 }
